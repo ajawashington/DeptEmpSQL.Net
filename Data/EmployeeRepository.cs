@@ -9,7 +9,7 @@ namespace DepartmentsEmployeesConsole.Data
     // This class is for retrieving data from our database
     public class EmployeeRepository
     {
-        public SqlConnection Connection
+        public SqlConnection connection
         {
             get
             {
@@ -29,7 +29,7 @@ namespace DepartmentsEmployeesConsole.Data
 
 
             // This opens the connection. SQLConnection is the TUNNEL
-            using (SqlConnection conn = Connection)
+            using (SqlConnection conn = connection)
             {
                 // This opens the GATES on either side of the TUNNEL
                 conn.Open();
@@ -102,7 +102,7 @@ namespace DepartmentsEmployeesConsole.Data
         public Employee GetEmployeeById(int employeeId)
         {
             // This opens the connection. SQLConnection is the TUNNEL
-            using (SqlConnection conn = Connection)
+            using (SqlConnection conn = connection)
             {
                 // This opens the GATES on either side of the TUNNEL
                 conn.Open();
@@ -174,11 +174,70 @@ namespace DepartmentsEmployeesConsole.Data
             }
         }
 
+        public List<Employee> GetAllEmployeesWithDepartment()
+        {
+            using (SqlConnection conn = connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT e.Id, e.firstName, e.lastName, e.departmentId, d.deptName AS 'Department Name' FROM Employee e INNER JOIN Department d on e.departmentId = d.Id";
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    List<Employee> allDepartmentEmployees = new List<Employee>();
+
+                    Employee employee = null;
+
+                    // If we only expect a single row back from the database, we don't need a while loop.
+                    while (reader.Read())
+
+                    {
+                        int idColumnPosition = reader.GetOrdinal("Id");
+                        int IdValue = reader.GetInt32(idColumnPosition);
+
+                        int firstNameColumnPosition = reader.GetOrdinal("firstName");
+                        string firstNameValue = reader.GetString(firstNameColumnPosition);
+
+                        int lastNameColumnPosition = reader.GetOrdinal("lastName");
+                        string lastNameValue = reader.GetString(lastNameColumnPosition);
+
+                        int departmentColumnPosition = reader.GetOrdinal("Department Name");
+                        string departmentValue = reader.GetString(departmentColumnPosition);
+
+                        int departmentIdColumnPosition = reader.GetOrdinal("departmentId");
+                        int departmentIdValue = reader.GetInt32(departmentIdColumnPosition);
+
+                        employee = new Employee
+                        {
+                            Id = IdValue,
+                            FirstName = firstNameValue,
+                            LastName = lastNameValue,
+                            DepartmentId = departmentIdValue,
+                            Department = new Department
+                            {
+                                DeptName = departmentValue,
+                                Id = departmentIdValue
+                            }
+
+                        };
+
+                        allDepartmentEmployees.Add(employee);
+
+
+                    }
+
+                    reader.Close();
+
+                    return allDepartmentEmployees;
+                }
+            }
+        }
+
+
 
         // Create a new employee
         public Employee CreateNewEmployee(Employee employeeToAdd)
         {
-            using (SqlConnection conn = Connection)
+            using (SqlConnection conn = connection)
             {
                 conn.Open();
 
@@ -205,7 +264,7 @@ namespace DepartmentsEmployeesConsole.Data
         // Update Employee
         public void UpdateEmployee(int employeeId, Employee employee)
         {
-            using (SqlConnection conn = Connection)
+            using (SqlConnection conn = connection)
             {
                 conn.Open();
 
@@ -230,7 +289,7 @@ namespace DepartmentsEmployeesConsole.Data
         // Delete an employee
         public void DeleteEmployee(int employeeId)
         {
-            using (SqlConnection conn = Connection)
+            using (SqlConnection conn = connection)
             {
                 conn.Open();
 
