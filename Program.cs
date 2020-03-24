@@ -23,6 +23,23 @@ namespace DepartmentsEmployeesConsole
                 Console.WriteLine($"{dept.Id} {dept.DeptName}");
             }
 
+            Console.WriteLine("----------------------------");
+            Console.WriteLine("Getting Department with Id 1");
+
+            Department singleDepartment = departmentRepo.GetDepartmentById(1);
+
+            Console.WriteLine($"{singleDepartment.Id} {singleDepartment.DeptName}");
+
+            Department legalDept = new Department
+            {
+                DeptName = "Legal"
+            };
+
+            departmentRepo.AddDepartment(legalDept);
+
+            Console.WriteLine("-------------------------------");
+            Console.WriteLine("Added the new Legal Department!");
+
 
             EmployeeRepository employeeRepo = new EmployeeRepository();
       
